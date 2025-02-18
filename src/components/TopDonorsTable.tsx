@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,15 +10,27 @@ import {
   Card,
   Typography,
 } from "@mui/material";
-import { donors } from "../data/donors";
 import { useMediaQuery } from "@mui/material";
+import { Donor, fetchSheetData } from "../data/fetchSheet";
 
 const medalIcons = ["🥇", "🥈", "🥉"];
 
 const TopDonorsTable = () => {
+  const [donors, setDonors] = useState<Donor[]>([]);
+  const [lastUpdate, setLastUpdate] = useState<string>("just now");
+
   const [expanded, setExpanded] = useState(false);
   const isMobile = useMediaQuery("(max-width: 600px)");
 
+  useEffect(() => {
+    const getDonors = async () => {
+      const { donors, lastUpdate } = await fetchSheetData();
+      setDonors(donors);
+      setLastUpdate(lastUpdate);
+    };
+
+    getDonors();
+  }, []);
   const handleExpand = () => {
     setExpanded(!expanded);
   };
@@ -64,7 +76,7 @@ const TopDonorsTable = () => {
           mb: 2,
         }}
       >
-        Last updated 18/02/2025 22:00
+        Last updated: {lastUpdate}
       </Typography>
       <TableContainer sx={{ p: 1 }}>
         <Table>

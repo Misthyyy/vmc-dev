@@ -1,12 +1,31 @@
 import { Box, Typography, Card, useTheme, CardContent } from "@mui/material";
 import { motion } from "framer-motion";
-import { donationAmount, milestones, percentage } from "../data/donors";
+import { milestones } from "../data/donors";
+import { useEffect, useState } from "react";
+import { fetchSheetData } from "../data/fetchSheet";
 
 export default function ProgressBar() {
   const theme = useTheme();
   const formatAmount = (amount: number) => {
     return amount >= 1_000_000 ? `${amount / 1_000_000}M` : amount;
   };
+
+  const [donationAmount, setDonationAmount] = useState(0);
+  const [percentage, setPercentage] = useState(0);
+
+  async function displayDonors() {
+    const totalDonation = (await fetchSheetData()).totalAmount;
+    const totalGoal = Math.max(...milestones.map((m) => m.amount));
+    const calculatedPercentage =
+      totalGoal > 0 ? (totalDonation / totalGoal) * 100 : 0;
+
+    setDonationAmount(totalDonation);
+    setPercentage(calculatedPercentage);
+  }
+
+  useEffect(() => {
+    displayDonors();
+  }, []);
 
   return (
     <Card
