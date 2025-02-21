@@ -6,11 +6,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
   Card,
   Typography,
+  Pagination,
 } from "@mui/material";
-import { useMediaQuery } from "@mui/material";
 import { Donor, fetchSheetData } from "../data/fetchSheet";
 
 const medalIcons = ["🥇", "🥈", "🥉"];
@@ -18,9 +17,8 @@ const medalIcons = ["🥇", "🥈", "🥉"];
 const TopDonorsTable = () => {
   const [donors, setDonors] = useState<Donor[]>([]);
   const [lastUpdate, setLastUpdate] = useState<string>("just now");
-
-  const [expanded, setExpanded] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 600px)");
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
 
   useEffect(() => {
     const getDonors = async () => {
@@ -31,14 +29,20 @@ const TopDonorsTable = () => {
 
     getDonors();
   }, []);
-  const handleExpand = () => {
-    setExpanded(!expanded);
+
+  const handleChangePage = (
+    _event: React.ChangeEvent<unknown>,
+    newPage: number
+  ) => {
+    setPage(newPage);
   };
 
   const sortedDonors = [...donors].sort((a, b) => b.amount - a.amount);
-  const displayedDonors = expanded
-    ? sortedDonors.slice(0, 10)
-    : sortedDonors.slice(0, 5);
+  const startIndex = (page - 1) * rowsPerPage;
+  const displayedDonors = sortedDonors.slice(
+    startIndex,
+    startIndex + rowsPerPage
+  );
 
   return (
     <Card
@@ -76,7 +80,7 @@ const TopDonorsTable = () => {
           mb: 2,
         }}
       >
-        Last updated: {lastUpdate}
+        Last updated {lastUpdate}
       </Typography>
       <TableContainer sx={{ p: 1 }}>
         <Table>
@@ -86,7 +90,7 @@ const TopDonorsTable = () => {
                 sx={{
                   fontFamily: "Goldman",
                   fontSize: "1.3em",
-                  color: "whitesmoke",
+                  color: "white",
                   textAlign: "center",
                 }}
               >
@@ -96,98 +100,91 @@ const TopDonorsTable = () => {
                 sx={{
                   fontFamily: "Goldman",
                   fontSize: "1.3em",
-
-                  color: "whitesmoke",
+                  color: "white",
                   textAlign: "center",
                 }}
               >
                 Name
               </TableCell>
-              {!isMobile && (
-                <TableCell
-                  sx={{
-                    fontFamily: "Goldman",
-                    fontSize: "1.3em",
-
-                    color: "whitesmoke",
-                    textAlign: "center",
-                  }}
-                >
-                  Amount
-                </TableCell>
-              )}
+              <TableCell
+                sx={{
+                  fontFamily: "Goldman",
+                  fontSize: "1.3em",
+                  color: "white",
+                  textAlign: "center",
+                }}
+              >
+                Amount
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {displayedDonors.map((donor, index) => (
-              <TableRow key={donor.id}>
+              <TableRow
+                key={donor.id}
+                sx={{
+                  "&:hover": {
+                    background: "linear-gradient(to right, #ff9a9e, #fad0c4)",
+                  },
+                }}
+              >
                 <TableCell
                   sx={{
                     fontFamily: "Play",
                     fontSize: "1.8em",
                     textAlign: "center",
-                    color: "whitesmoke",
+                    color: "white",
                   }}
                 >
-                  {index < 3 ? medalIcons[index] : index + 1}
+                  {startIndex + index < 3
+                    ? medalIcons[startIndex + index]
+                    : startIndex + index + 1}
                 </TableCell>
                 <TableCell
                   sx={{
                     fontFamily: "Play",
                     fontSize: "1.2em",
                     textAlign: "center",
-                    color: "whitesmoke",
+                    color: "white",
                   }}
                 >
                   {donor.name}
                 </TableCell>
-                {!isMobile && (
-                  <TableCell
-                    sx={{
-                      fontFamily: "Play",
-                      fontSize: "1.2em",
-                      textAlign: "center",
-                      color: "whitesmoke",
-                    }}
-                  >
-                    {donor.amount.toLocaleString()}
-                  </TableCell>
-                )}
+                <TableCell
+                  sx={{
+                    fontFamily: "Play",
+                    fontSize: "1.2em",
+                    textAlign: "center",
+                    color: "white",
+                  }}
+                >
+                  {donor.amount.toLocaleString()}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      {expanded && (
-        <Typography
-          component="a"
-          href="https://docs.google.com/spreadsheets/d/1zfvgcQbzhvG1E0cdDAom56wE_6NcA749tGZ3F-l0L84/edit?gid=0#gid=0"
-          target="_blank"
-          rel="noopener noreferrer"
+      {donors.length > rowsPerPage && (
+        <Pagination
+          count={Math.ceil(donors.length / rowsPerPage)}
+          page={page}
+          onChange={handleChangePage}
           sx={{
-            fontFamily: "Goldman",
-            color: "whitesmoke",
-            display: "block",
-            fontSize: "1.2em",
-            textDecoration: "none",
-            marginTop: 2,
+            mt: 2,
+            display: "flex",
+            justifyContent: "center",
+            "& .MuiPaginationItem-root": {
+              color: "white",
+            },
+            "& .Mui-selected": {
+              background: "linear-gradient(to right, #ff9a9e, #fad0c4)",
+              color: "black",
+              fontWeight: "bold",
+            },
           }}
-        >
-          Click here to view all donors
-        </Typography>
+        />
       )}
-      <Button
-        onClick={handleExpand}
-        variant="contained"
-        sx={{
-          mt: 2,
-          fontFamily: "Goldman",
-          fontSize: "1.5em",
-          color: "whitesmoke",
-        }}
-      >
-        {expanded ? "Show Less" : "Show All"}
-      </Button>
     </Card>
   );
 };
