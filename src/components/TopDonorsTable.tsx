@@ -6,19 +6,18 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Button,
   Card,
   Typography,
-  Pagination,
 } from "@mui/material";
 import { Donor, fetchSheetData } from "../data/fetchSheet";
 
 const medalIcons = ["🥇", "🥈", "🥉"];
 
 const TopDonorsTable = () => {
+  const [expanded, setExpanded] = useState(false);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [lastUpdate, setLastUpdate] = useState<string>("just now");
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 10;
 
   useEffect(() => {
     const getDonors = async () => {
@@ -30,19 +29,14 @@ const TopDonorsTable = () => {
     getDonors();
   }, []);
 
-  const handleChangePage = (
-    _event: React.ChangeEvent<unknown>,
-    newPage: number
-  ) => {
-    setPage(newPage);
+  const handleExpand = () => {
+    setExpanded(!expanded);
   };
 
   const sortedDonors = [...donors].sort((a, b) => b.amount - a.amount);
-  const startIndex = (page - 1) * rowsPerPage;
-  const displayedDonors = sortedDonors.slice(
-    startIndex,
-    startIndex + rowsPerPage
-  );
+  const displayedDonors = expanded
+    ? sortedDonors.slice(0, 10)
+    : sortedDonors.slice(0, 5);
 
   return (
     <Card
@@ -50,7 +44,7 @@ const TopDonorsTable = () => {
         width: { xs: "90%", sm: "80%" },
         margin: "auto",
         textAlign: "center",
-        padding: { xs: 2, sm: 3 },
+        padding: 5,
         borderRadius: "15px",
         backgroundColor: "rgba(0, 0, 0, 0.6)",
         boxShadow: 3,
@@ -90,7 +84,7 @@ const TopDonorsTable = () => {
                 sx={{
                   fontFamily: "Goldman",
                   fontSize: "1.3em",
-                  color: "white",
+                  color: "whitesmoke",
                   textAlign: "center",
                 }}
               >
@@ -100,7 +94,8 @@ const TopDonorsTable = () => {
                 sx={{
                   fontFamily: "Goldman",
                   fontSize: "1.3em",
-                  color: "white",
+
+                  color: "whitesmoke",
                   textAlign: "center",
                 }}
               >
@@ -110,7 +105,7 @@ const TopDonorsTable = () => {
                 sx={{
                   fontFamily: "Goldman",
                   fontSize: "1.3em",
-                  color: "white",
+                  color: "whitesmoke",
                   textAlign: "center",
                 }}
               >
@@ -120,32 +115,23 @@ const TopDonorsTable = () => {
           </TableHead>
           <TableBody>
             {displayedDonors.map((donor, index) => (
-              <TableRow
-                key={donor.id}
-                sx={{
-                  "&:hover": {
-                    background: "linear-gradient(to right, #ff9a9e, #fad0c4)",
-                  },
-                }}
-              >
+              <TableRow key={donor.id}>
                 <TableCell
                   sx={{
                     fontFamily: "Play",
                     fontSize: "1.8em",
                     textAlign: "center",
-                    color: "white",
+                    color: "whitesmoke",
                   }}
                 >
-                  {startIndex + index < 3
-                    ? medalIcons[startIndex + index]
-                    : startIndex + index + 1}
+                  {index < 3 ? medalIcons[index] : index + 1}
                 </TableCell>
                 <TableCell
                   sx={{
                     fontFamily: "Play",
                     fontSize: "1.2em",
                     textAlign: "center",
-                    color: "white",
+                    color: "whitesmoke",
                   }}
                 >
                   {donor.name}
@@ -155,7 +141,7 @@ const TopDonorsTable = () => {
                     fontFamily: "Play",
                     fontSize: "1.2em",
                     textAlign: "center",
-                    color: "white",
+                    color: "whitesmoke",
                   }}
                 >
                   {donor.amount.toLocaleString()}
@@ -165,26 +151,36 @@ const TopDonorsTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      {donors.length > rowsPerPage && (
-        <Pagination
-          count={Math.ceil(donors.length / rowsPerPage)}
-          page={page}
-          onChange={handleChangePage}
+      {expanded && (
+        <Typography
+          component="a"
+          href="https://docs.google.com/spreadsheets/d/1zfvgcQbzhvG1E0cdDAom56wE_6NcA749tGZ3F-l0L84/edit?gid=0#gid=0"
+          target="_blank"
+          rel="noopener noreferrer"
           sx={{
-            mt: 2,
-            display: "flex",
-            justifyContent: "center",
-            "& .MuiPaginationItem-root": {
-              color: "white",
-            },
-            "& .Mui-selected": {
-              background: "linear-gradient(to right, #ff9a9e, #fad0c4)",
-              color: "black",
-              fontWeight: "bold",
-            },
+            fontFamily: "Goldman",
+            color: "whitesmoke",
+            display: "block",
+            fontSize: "1.2em",
+            textDecoration: "none",
+            marginTop: 2,
           }}
-        />
+        >
+          Click here to view all donors
+        </Typography>
       )}
+      <Button
+        onClick={handleExpand}
+        variant="contained"
+        sx={{
+          mt: 2,
+          fontFamily: "Goldman",
+          fontSize: "1.5em",
+          color: "whitesmoke",
+        }}
+      >
+        {expanded ? "Show Less" : "Show All"}
+      </Button>
     </Card>
   );
 };

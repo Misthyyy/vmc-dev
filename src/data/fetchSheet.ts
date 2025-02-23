@@ -17,7 +17,6 @@ export async function fetchSheetData() {
     const response = await axios.get<{ values: string[][] }>(url);
 
     const rows = response.data.values;
-    console.log("rows", rows);
 
     if (!rows || rows.length === 0) {
       throw new Error("No data found in the Google Sheet.");
@@ -29,7 +28,6 @@ export async function fetchSheetData() {
     const totalAmount = totalAmountString
       ? parseInt(totalAmountString.replace(/,/g, ""), 10)
       : 0;
-    console.log("totalAmount", totalAmount);
 
     const donors: Donor[] = rows
       .slice(3) // Skip headers and 'Last update' row
